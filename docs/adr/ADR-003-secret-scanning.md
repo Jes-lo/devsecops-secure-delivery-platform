@@ -27,7 +27,9 @@ The secret-scanning workflow:
 - supports manual execution
 - checks out full Git history
 - does not persist checkout credentials
-- grants only read access to repository contents
+- grants read access to repository contents
+- grants read access to pull request metadata required for PR scanning
+- disables automated PR comments to avoid write permissions
 - pins the Gitleaks GitHub Action to a full commit SHA
 - treats detected secrets as pipeline failures
 
