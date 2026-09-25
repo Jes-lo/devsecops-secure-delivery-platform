@@ -27,7 +27,8 @@ coverage/
 trivy-report.*
 semgrep-report.*
 checkov-report.*
-sbom.*
+# Generated SBOM artifacts
+*.spdx.json
 *.sarif
 
 # IDE / OS
