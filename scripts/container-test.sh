@@ -84,6 +84,22 @@ docker run --rm \
     }
   "
 
+echo "==> Validating runtime package managers are absent"
+
+docker run --rm \
+  --entrypoint sh \
+  "${IMAGE_NAME}" \
+  -c '
+    set -eu
+
+    for command_name in npm npx corepack yarn yarnpkg; do
+      if command -v "$command_name" >/dev/null 2>&1; then
+        echo "Unexpected runtime command found: $command_name"
+        exit 1
+      fi
+    done
+  '
+
 echo "==> Starting hardened container"
 
 docker run -d \
