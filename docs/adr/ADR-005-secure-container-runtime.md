@@ -27,6 +27,7 @@ The container implementation:
 - pins the Node.js base image by SHA-256 digest
 - installs dependencies reproducibly with `npm ci`
 - installs production dependencies only
+- removes npm, npx, Corepack, and Yarn from the final runtime image
 - disables dependency lifecycle scripts during the build
 - copies only runtime application files into the final image
 - runs as the built-in non-root `node` user
