@@ -1,0 +1,95 @@
+name: Artifact Signing
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: artifact-signing-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cosign-trust:
+    name: Cosign trust validation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    env:
+      COSIGN_IMAGE: ghcr.io/sigstore/cosign/cosign@sha256:9e5c2f2edc34351160407ca3416c61855bdf9403c3c5936e0f0be7fc261611b8
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Verify pinned Cosign image
+        run: |
+          docker run --rm \
+            "${COSIGN_IMAGE}" \
+            verify \
+            "${COSIGN_IMAGE}" \
+            --certificate-identity \
+              keyless@projectsigstore.iam.gserviceaccount.com \
+            --certificate-oidc-issuer \
+              https://accounts.google.com
+
+      - name: Validate signing script
+        run: |
+          bash -n scripts/sign-sbom.sh
+
+  sign-sbom:
+    name: Keyless SBOM signing
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    permissions:
+      contents: read
+      id-token: write
+
+    needs:
+      - cosign-trust
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Create signing artifact directory
+        run: |
+          mkdir -p "${RUNNER_TEMP}/signed-artifacts"
+
+      - name: Generate SBOM for signing
+        env:
+          SBOM_OUTPUT_PATH: ${{ runner.temp }}/signed-artifacts/secure-delivery-api.spdx.json
+        run: |
+          bash scripts/generate-sbom.sh
+
+      - name: Sign and verify SBOM
+        run: |
+          EXPECTED_IDENTITY="https://github.com/${GITHUB_REPOSITORY}/.github/workflows/artifact-signing.yml@refs/heads/main"
+
+          bash scripts/sign-sbom.sh \
+            "${RUNNER_TEMP}/signed-artifacts/secure-delivery-api.spdx.json" \
+            "${RUNNER_TEMP}/signed-artifacts/secure-delivery-api.spdx.sigstore.json" \
+            "${EXPECTED_IDENTITY}"
+
+      - name: Upload signed supply-chain artifacts
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: signed-sbom-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/signed-artifacts/secure-delivery-api.spdx.json
+            ${{ runner.temp }}/signed-artifacts/secure-delivery-api.spdx.sigstore.json
+          if-no-files-found: error
+          retention-days: 14
