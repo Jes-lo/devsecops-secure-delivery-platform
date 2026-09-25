@@ -22,9 +22,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
 
-    container:
-      image: semgrep/semgrep@sha256:2124de200043ce3ded427d02e924ff3b59d017020614d28c2bb7ce6656bec5d4
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -32,11 +29,24 @@ jobs:
           persist-credentials: false
 
       - name: Verify Semgrep version
-        run: semgrep --version
+        run: |
+          docker run --rm \
+            semgrep/semgrep@sha256:2124de200043ce3ded427d02e924ff3b59d017020614d28c2bb7ce6656bec5d4 \
+            semgrep --version
+
+      - name: Verify scanner runs as non-root
+        run: |
+          docker run --rm \
+            --entrypoint id \
+            semgrep/semgrep@sha256:2124de200043ce3ded427d02e924ff3b59d017020614d28c2bb7ce6656bec5d4
 
       - name: Run Express.js SAST rules
         run: |
-          semgrep scan \
-            --config p/expressjs \
-            --error \
-            .
+          docker run --rm \
+            --volume "${GITHUB_WORKSPACE}:/src:ro" \
+            --workdir /src \
+            semgrep/semgrep@sha256:2124de200043ce3ded427d02e924ff3b59d017020614d28c2bb7ce6656bec5d4 \
+            semgrep scan \
+              --config p/expressjs \
+              --error \
+              .

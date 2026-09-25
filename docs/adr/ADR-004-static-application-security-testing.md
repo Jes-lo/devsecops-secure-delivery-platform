@@ -25,9 +25,11 @@ The initial SAST workflow:
 - runs on pull requests targeting `main`
 - runs after changes are pushed to `main`
 - supports manual execution
-- uses the Semgrep Community Edition container
-- uses a non-root container image
-- pins the container image by digest
+- executes checkout on the standard GitHub-hosted runner
+- runs Semgrep Community Edition inside a dedicated container
+- uses a non-root scanner container
+- mounts the repository read-only inside the scanner
+- pins the scanner container image by digest
 - grants only read access to repository contents
 - does not use cloud credentials
 - does not require repository secrets
@@ -60,6 +62,14 @@ Rejected because a mutable tag could resolve to different scanner contents
 without a repository change.
 
 The scanner image is therefore pinned by digest.
+
+### Run the entire GitHub Actions job inside the Semgrep container
+
+Rejected because the non-root scanner user cannot write to GitHub Actions
+runner file-command directories mounted under `/__w/_temp`.
+
+Instead, checkout and workflow orchestration run on the GitHub-hosted runner,
+while only the SAST scanner executes inside the non-root container.
 
 ### Semgrep AppSec Platform
 
