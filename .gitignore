@@ -1,0 +1,42 @@
+# Node.js
+node_modules/
+npm-debug.log*
+coverage/
+.nyc_output/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+.terraform.lock.hcl.backup
+
+# Security tooling
+.gitleaks-report.*
+trivy-report.*
+semgrep-report.*
+checkov-report.*
+sbom.*
+*.sarif
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary
+tmp/
+temp/
+*.tmp
