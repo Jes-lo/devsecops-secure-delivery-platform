@@ -63,3 +63,27 @@ test('GET /api/status uses the configured environment', async () => {
     }
   }
 });
+
+test('security headers are present on public endpoints', async () => {
+  const endpoints = [
+    '/health',
+    '/version',
+    '/api/status'
+  ];
+
+  for (const endpoint of endpoints) {
+    const response = await request(createApp())
+      .get(endpoint)
+      .expect(200);
+
+    assert.equal(
+      response.headers['x-content-type-options'],
+      'nosniff'
+    );
+
+    assert.equal(
+      response.headers['cross-origin-resource-policy'],
+      'same-origin'
+    );
+  }
+});
