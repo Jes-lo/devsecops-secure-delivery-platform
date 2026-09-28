@@ -70,7 +70,9 @@ python3 -m json.tool \
 
 echo "==> Validating SPDX content"
 
-SBOM_FILE="${SBOM_FILE}" python3 <<'PY'
+EXPECTED_APP_VERSION="$(node -p "require('./package.json').version")"
+
+SBOM_FILE="${SBOM_FILE}" EXPECTED_APP_VERSION="${EXPECTED_APP_VERSION}" python3 <<'PY'
 import json
 import os
 from pathlib import Path
@@ -101,11 +103,15 @@ application = [
 if not application:
     raise SystemExit("Application package was not found in the SBOM")
 
+expected_app_version = os.environ["EXPECTED_APP_VERSION"]
+
 if not any(
-    package.get("versionInfo") == "0.1.0"
+    package.get("versionInfo") == expected_app_version
     for package in application
 ):
-    raise SystemExit("Expected application version 0.1.0 was not found")
+    raise SystemExit(
+        f"Expected application version {expected_app_version} was not found"
+    )
 
 express = [
     package
