@@ -1,5 +1,8 @@
 # DevSecOps Secure Software Delivery Platform
 
+**Core technologies:** Node.js · Docker · GitHub Actions · Gitleaks · Semgrep ·
+Trivy · Syft · Cosign · Sigstore · Terraform · TFLint · Checkov · OWASP ZAP
+
 A greenfield portfolio implementation of a secure software delivery platform
 focused on integrating security controls throughout the software delivery
 lifecycle.
@@ -11,9 +14,10 @@ Testing, and dependency maintenance.
 
 ## Project Status
 
-**Release candidate: v1.0.0**
+**v1.0.0 — Initial Portfolio Release**
 
-The core DevSecOps platform is complete within its defined portfolio scope.
+The DevSecOps Secure Software Delivery Platform is complete within its defined
+portfolio scope.
 
 The project includes:
 
@@ -38,6 +42,7 @@ The project includes:
 flowchart TD
     DEV[Developer] --> GIT[Git Repository]
     GIT --> PR[Pull Request]
+    DEP[GitHub Dependabot] --> PR
 
     PR --> CI[Application Validation]
     PR --> SECRET[Gitleaks]
@@ -49,7 +54,7 @@ flowchart TD
     PR --> IAC[Terraform + TFLint + Checkov]
     PR --> DAST[OWASP ZAP DAST]
 
-    CI --> GATE[Security and Quality Gates]
+    CI --> GATE[Security and Quality Validation]
     SECRET --> GATE
     SAST --> GATE
     CONTAINER --> GATE
@@ -59,14 +64,17 @@ flowchart TD
     IAC --> GATE
     DAST --> GATE
 
-    GATE --> MAIN[Trusted main branch]
+    GATE --> REVIEW[Validated Pull Request]
+    REVIEW -. merge .-> MAIN[main branch]
 
     MAIN --> SIGN[Keyless SBOM Signing]
-    SIGN --> SIGSTORE[Sigstore Bundle]
+    SIGN --> VERIFY[Cosign Verification]
+    VERIFY --> EVIDENCE[Verified Release Evidence]
+    EVIDENCE -. manual publish .-> RELEASE[GitHub Release v1.0.0]
 
-    DEP[GitHub Dependabot] --> PR
+    RELEASE --> ARTIFACTS[SBOM + Sigstore Bundle]
 
-    IAC -. validated design .-> S3[(S3 Evidence Storage Design)]
+    IAC -. static validation .-> S3[(AWS S3 Design - Not Deployed)]
 ```
 
 The Terraform infrastructure is statically validated but is not automatically
@@ -137,7 +145,7 @@ Application controls include:
 
 ## Container Security
 
-The production container uses a multi-stage Docker build.
+The application runtime image uses a multi-stage Docker build.
 
 Runtime controls include:
 
@@ -251,7 +259,7 @@ Automatic merge is intentionally disabled.
 Dependency update proposals remain subject to the same DevSecOps validation
 pipeline as other changes.
 
-## CI/CD Security
+## CI Pipeline Security
 
 GitHub Actions workflows follow several supply-chain controls:
 
@@ -269,10 +277,10 @@ GitHub Actions workflows follow several supply-chain controls:
 
 Detailed security documentation is available in:
 
-- `docs/security/threat-model.md`
-- `docs/security/security-controls-matrix.md`
-- `docs/security/final-security-review.md`
-- `docs/security/openapi.yaml`
+- [Threat Model](docs/security/threat-model.md)
+- [Security Controls Matrix](docs/security/security-controls-matrix.md)
+- [Final Security Review](docs/security/final-security-review.md)
+- [OpenAPI Specification](docs/security/openapi.yaml)
 
 ## Architecture Decision Records
 
@@ -390,15 +398,19 @@ or internal operational information is included.
 
 ## License and Third-Party Software
 
-Repository-specific material is provided under the terms in `LICENSE`.
+Repository-specific material is provided under the terms in [LICENSE](LICENSE).
 
 Third-party software and services remain subject to their respective licenses
 and ownership.
 
-See `THIRD_PARTY_NOTICES.md`.
+See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
 
 ## Release
 
-Initial portfolio release:
+**Current release: [v1.0.0](https://github.com/Jes-lo/devsecops-secure-delivery-platform/releases/tag/v1.0.0)**
 
-**v1.0.0**
+The initial portfolio release includes the generated SPDX Software Bill of
+Materials and its Sigstore verification bundle as release artifacts.
+
+The release corresponds to the implementation that completed the project's
+defined DevSecOps portfolio scope.
