@@ -1,0 +1,46 @@
+openapi: 3.0.3
+
+info:
+  title: Secure Delivery API
+  version: 0.1.0
+  description: Minimal API used by the DevSecOps Secure Delivery Platform.
+
+servers:
+  - url: http://secure-delivery-api-dast:3000
+
+paths:
+  /health:
+    get:
+      summary: Application health
+      operationId: getHealth
+      responses:
+        "200":
+          description: Application is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /version:
+    get:
+      summary: Application version
+      operationId: getVersion
+      responses:
+        "200":
+          description: Application version metadata
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /api/status:
+    get:
+      summary: Service status
+      operationId: getApiStatus
+      responses:
+        "200":
+          description: Service status
+          content:
+            application/json:
+              schema:
+                type: object
