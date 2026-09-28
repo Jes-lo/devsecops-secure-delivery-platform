@@ -11,6 +11,12 @@ NETWORK_NAME="devsecops-zap-$$"
 TARGET_CONTAINER="secure-delivery-api-dast-$$"
 
 WORK_DIR="$(mktemp -d)"
+
+# The ZAP container runs with its own UID. A directory created by mktemp is
+# normally accessible only to the host user, so use sticky temporary-directory
+# permissions to allow ZAP to create reports without changing the OpenAPI file.
+chmod 1777 "${WORK_DIR}"
+
 SCAN_LOG="${WORK_DIR}/zap-api-scan.log"
 
 REPORT_DIR="${ZAP_REPORT_DIR:-}"
