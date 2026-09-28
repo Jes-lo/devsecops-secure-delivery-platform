@@ -14,10 +14,11 @@ Examples may include:
 - Checkov
 - Gitleaks
 - Semgrep
-- CodeQL
 - Trivy
 - Syft
 - Cosign
+- OWASP ZAP
+- GitHub Dependabot
 
 All trademarks, software, services, and third-party intellectual property remain the property of their respective owners and are subject to their respective licenses and terms.
 
