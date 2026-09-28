@@ -56,7 +56,7 @@ HEADERS="$(
   exit 1
 }
 
-[[ "${VERSION_RESPONSE}" == '{"name":"devsecops-secure-delivery-platform","version":"0.1.0"}' ]] || {
+[[ "${VERSION_RESPONSE}" == '{"name":"devsecops-secure-delivery-platform","version":"1.0.0"}' ]] || {
   echo "Unexpected /version response"
   exit 1
 }

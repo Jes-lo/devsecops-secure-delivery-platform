@@ -2,7 +2,7 @@ openapi: 3.0.3
 
 info:
   title: Secure Delivery API
-  version: 0.1.0
+  version: 1.0.0
   description: Minimal API used by the DevSecOps Secure Delivery Platform.
 
 servers:

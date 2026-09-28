@@ -22,7 +22,7 @@ test('GET /version returns application metadata', async () => {
     .expect(200);
 
   assert.equal(response.body.name, 'devsecops-secure-delivery-platform');
-  assert.equal(response.body.version, '0.1.0');
+  assert.equal(response.body.version, require('../package.json').version);
 });
 
 test('GET /api/status returns service status', async () => {
